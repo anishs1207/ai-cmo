@@ -27,6 +27,7 @@ npm run dev             # http://localhost:3001
 
 | Var | What |
 | --- | --- |
+| `DATABASE_URL` | Neon Postgres connection string |
 | `GEMINI_API_KEY` | Google AI Studio key (uses `gemini-2.5-flash`) |
 | `COMPOSIO_API_KEY` | app.composio.dev → Settings → API keys |
 | `REDDIT_SHARED_USER_ID` | any stable id, e.g. `ripple-shared-reddit`. Connect the app's Reddit account once from `/connections` |
@@ -36,6 +37,6 @@ Instagram publishing requires a Business/Creator account and a **publicly reacha
 
 ## Dev notes
 
-- SQLite via Prisma (`prisma/dev.db`). `node scripts/seed-demo.mjs` seeds a demo business for UI work.
+- Postgres via Prisma + Neon (`DATABASE_URL`). `node scripts/seed-demo.mjs` seeds a demo business for UI work.
 - Stack: Next.js 16 App Router, Tailwind v4 (design tokens in `app/globals.css`), `@composio/core`, `@google/genai`, Prisma 6.
 - Domain logic lives in `lib/`: `kb.ts` (extraction), `campaign.ts` (generation + analysis), `publish.ts` (channel adapters), `composio.ts`, `scrape.ts`.

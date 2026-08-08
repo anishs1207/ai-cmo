@@ -1,3 +1,4 @@
+import { isRedditConfigured } from "../../../lib/composio";
 import { requireBusiness } from "../../../lib/db";
 import { ConnectionsGrid } from "./ConnectionsGrid";
 
@@ -8,6 +9,9 @@ export default async function ConnectionsPage() {
 
   const connections = ["instagram", "facebook", "reddit"].map((platform) => {
     const c = business.connections.find((x) => x.platform === platform);
+    if (platform === "reddit" && isRedditConfigured()) {
+      return { platform, status: "active", label: "Shared Reddit account" };
+    }
     return {
       platform,
       status: c?.status ?? "none",

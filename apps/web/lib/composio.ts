@@ -13,12 +13,21 @@ export function composio() {
 
 export type Platform = "facebook" | "instagram" | "reddit";
 
+/** Composio user id for the app-owned Reddit account (set in .env after one-time setup). */
+export function redditSharedUserId(): string {
+  return process.env.REDDIT_SHARED_USER_ID || "ripple-shared-reddit";
+}
+
+export function isRedditConfigured(): boolean {
+  return Boolean(process.env.REDDIT_SHARED_USER_ID?.trim());
+}
+
 /**
  * Reddit posts for ALL businesses go through one app-owned account.
  * Facebook/Instagram are connected per business (userId = businessId).
  */
 export function composioUserId(platform: Platform, businessId: string): string {
-  if (platform === "reddit") return process.env.REDDIT_SHARED_USER_ID || "ripple-shared-reddit";
+  if (platform === "reddit") return redditSharedUserId();
   return businessId;
 }
 

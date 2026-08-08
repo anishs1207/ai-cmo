@@ -4,6 +4,8 @@ import {
   composioUserId,
   fetchAccountMeta,
   isConnectionActive,
+  isRedditConfigured,
+  redditSharedUserId,
   type Platform,
 } from "../../../../lib/composio";
 
@@ -13,6 +15,24 @@ export async function GET(req: Request) {
 
   const platform = new URL(req.url).searchParams.get("platform") as Platform | null;
   if (!platform) return NextResponse.json({ error: "Missing platform" }, { status: 400 });
+
+  if (platform === "reddit") {
+    if (!isRedditConfigured()) {
+      return NextResponse.json({ status: "pending", userId: redditSharedUserId() });
+    }
+
+    await db.connection.upsert({
+      where: { businessId_platform: { businessId: business.id, platform } },
+      create: {
+        businessId: business.id,
+        platform,
+        status: "active",
+        accountLabel: "Shared Reddit account",
+      },
+      update: { status: "active", accountLabel: "Shared Reddit account" },
+    });
+    return NextResponse.json({ status: "active", label: "Shared Reddit account" });
+  }
 
   const connection = await db.connection.findUnique({
     where: { businessId_platform: { businessId: business.id, platform } },

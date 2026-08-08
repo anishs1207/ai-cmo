@@ -17,7 +17,7 @@ const copy: Record<string, { title: string; desc: string }> = {
   },
   reddit: {
     title: "Reddit",
-    desc: "Ripple posts to target subreddits through its own managed account — nothing to set up on your side.",
+    desc: "Posts through one app-owned Reddit account. Click Connect to get the user ID for your .env, then link Reddit in Composio.",
   },
 };
 
@@ -25,6 +25,7 @@ export function ConnectionsGrid({ initial }: { initial: Conn[] }) {
   const [conns, setConns] = useState(initial);
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [redditUserId, setRedditUserId] = useState<string | null>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => () => stopPoll(), []);
@@ -45,6 +46,23 @@ export function ConnectionsGrid({ initial }: { initial: Conn[] }) {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Could not start authorization");
+
+      if (platform === "reddit") {
+        setRedditUserId(data.userId ?? null);
+        toast(`Add to .env: REDDIT_SHARED_USER_ID=${data.userId}`);
+        if (data.configured) {
+          setBusy(null);
+          setConns((cs) =>
+            cs.map((c) =>
+              c.platform === "reddit" ? { ...c, status: "active", label: "Shared Reddit account" } : c,
+            ),
+          );
+          return;
+        }
+        setConns((cs) => cs.map((c) => (c.platform === platform ? { ...c, status: "pending" } : c)));
+        setBusy(null);
+        return;
+      }
 
       if (data.redirectUrl) window.open(data.redirectUrl, "_blank", "noopener");
 
@@ -105,6 +123,14 @@ export function ConnectionsGrid({ initial }: { initial: Conn[] }) {
                     )}
                   </div>
                   <div className="caption" style={{ marginTop: 3, maxWidth: 520 }}>{meta.desc}</div>
+                  {c.platform === "reddit" && redditUserId && (
+                    <code
+                      className="caption"
+                      style={{ display: "block", marginTop: 8, fontFamily: "var(--font-mono, monospace)" }}
+                    >
+                      REDDIT_SHARED_USER_ID={redditUserId}
+                    </code>
+                  )}
                 </div>
               </div>
 
@@ -123,8 +149,8 @@ export function ConnectionsGrid({ initial }: { initial: Conn[] }) {
         })}
       </div>
       <p className="caption rise" style={{ marginTop: 18 }}>
-        Authorization opens in a new tab via Composio&apos;s secure OAuth. Come back here after approving —
-        the status updates automatically.
+        Instagram and Facebook open Composio OAuth in a new tab — come back here after approving. For Reddit,
+        copy the logged user ID into <code>apps/web/.env</code>, connect Reddit in Composio, then restart the dev server.
       </p>
     </>
   );
