@@ -1,6 +1,14 @@
 {
   "$schema": "https://turborepo.dev/schema.json",
   "ui": "tui",
+  "globalEnv": [
+    "NODE_ENV",
+    "NEXT_RUNTIME",
+    "GEMINI_API_KEY",
+    "COMPOSIO_API_KEY",
+    "REDDIT_SHARED_USER_ID",
+    "APP_URL"
+  ],
   "tasks": {
     "build": {
       "dependsOn": [

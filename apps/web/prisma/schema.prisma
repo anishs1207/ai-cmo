@@ -1,0 +1,102 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Business {
+  id          String       @id @default(cuid())
+  name        String
+  websiteUrl  String?
+  description String?
+  promote     String?
+  kbJson      String? // structured marketing KB from Gemini
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  connections Connection[]
+  campaigns   Campaign[]
+  links       TrackedLink[]
+  insights    Insight[]
+}
+
+model Connection {
+  id                 String   @id @default(cuid())
+  businessId         String
+  business           Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  platform           String // "facebook" | "instagram" | "reddit"
+  composioAccountId  String?
+  accountLabel       String? // page name / ig username / reddit account
+  externalId         String? // fb page_id / ig_user_id
+  status             String   @default("pending") // pending | active | error
+  createdAt          DateTime @default(now())
+
+  @@unique([businessId, platform])
+}
+
+model Campaign {
+  id         String   @id @default(cuid())
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  name       String
+  objective  String? // what user wants to push this round
+  status     String   @default("draft") // draft | live | completed
+  createdAt  DateTime @default(now())
+  posts      Post[]
+  insights   Insight[]
+}
+
+model Post {
+  id          String    @id @default(cuid())
+  campaignId  String
+  campaign    Campaign  @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  platform    String // facebook | instagram | reddit
+  title       String? // reddit title
+  body        String // caption / message / reddit body
+  hashtags    String? // space-separated
+  imageUrl    String? // required for instagram
+  subreddit   String? // reddit target
+  rationale   String? // why the agent picked this angle
+  status      String    @default("draft") // draft | publishing | published | failed
+  error       String?
+  scheduledAt DateTime?
+  publishedAt DateTime?
+  externalId  String?
+  externalUrl String?
+  link        TrackedLink?
+  createdAt   DateTime  @default(now())
+}
+
+model TrackedLink {
+  id          String   @id @default(cuid())
+  code        String   @unique
+  businessId  String
+  business    Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  postId      String?  @unique
+  post        Post?    @relation(fields: [postId], references: [id], onDelete: SetNull)
+  destination String
+  createdAt   DateTime @default(now())
+  clicks      Click[]
+}
+
+model Click {
+  id        String      @id @default(cuid())
+  linkId    String
+  link      TrackedLink @relation(fields: [linkId], references: [id], onDelete: Cascade)
+  ts        DateTime    @default(now())
+  referrer  String?
+  userAgent String?
+}
+
+model Insight {
+  id         String    @id @default(cuid())
+  businessId String
+  business   Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  campaignId String?
+  campaign   Campaign? @relation(fields: [campaignId], references: [id], onDelete: SetNull)
+  summary    String // headline learning
+  detail     String // full analysis markdown
+  createdAt  DateTime  @default(now())
+}
