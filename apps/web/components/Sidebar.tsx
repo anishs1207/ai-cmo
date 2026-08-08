@@ -2,13 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { IconHome, IconMegaphone, IconBook, IconPlug } from "./icons";
+import { IconHome, IconMegaphone, IconBook } from "./icons";
 
 const items = [
   { href: "/", label: "Dashboard", icon: IconHome },
   { href: "/campaigns", label: "Campaigns", icon: IconMegaphone },
   { href: "/kb", label: "Knowledge Base", icon: IconBook },
-  { href: "/connections", label: "Connections", icon: IconPlug },
 ];
 
 export function Sidebar({
@@ -42,7 +41,7 @@ export function Sidebar({
       <div className="sidebar-foot">
         <div style={{ fontSize: 12.5, fontWeight: 600 }}>{businessName}</div>
         <div className="caption" style={{ fontSize: 11.5 }}>
-          {connected}/3 channels connected
+          {connected > 0 ? "Reddit ready" : "Reddit not configured"}
         </div>
       </div>
     </aside>

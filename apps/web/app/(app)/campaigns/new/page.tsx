@@ -1,3 +1,4 @@
+import { isRedditConfigured, ORGANIC_PLATFORMS } from "../../../../lib/composio";
 import { db, requireBusiness } from "../../../../lib/db";
 import { NewCampaignForm } from "./NewCampaignForm";
 
@@ -5,9 +6,7 @@ export const dynamic = "force-dynamic";
 
 export default async function NewCampaignPage() {
   const business = await requireBusiness();
-  const connectedPlatforms = business.connections
-    .filter((c) => c.status === "active")
-    .map((c) => c.platform);
+  const connectedPlatforms = isRedditConfigured() ? [...ORGANIC_PLATFORMS] : [];
 
   const insights = await db.insight.findMany({
     where: { businessId: business.id },

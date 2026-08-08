@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ORGANIC_PLATFORMS } from "../../lib/composio";
 import { db, requireBusiness } from "../../lib/db";
 import { publishDueScheduled } from "../../lib/publish";
 import { AreaChart } from "../../components/AreaChart";
@@ -48,7 +49,7 @@ export default async function Dashboard() {
   const delta = clicksPrev7d === 0 ? null : Math.round(((clicks7d - clicksPrev7d) / clicksPrev7d) * 100);
 
   const published = posts.filter((p) => p.status === "published");
-  const byPlatform = ["instagram", "facebook", "reddit"].map((platform) => ({
+  const byPlatform = ORGANIC_PLATFORMS.map((platform) => ({
     platform,
     clicks: clicks.filter((c) => c.link.post?.platform === platform).length,
     posts: published.filter((p) => p.platform === platform).length,

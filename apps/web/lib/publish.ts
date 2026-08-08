@@ -1,5 +1,5 @@
 import { db } from "./db";
-import { composioUserId, executeTool, type Platform } from "./composio";
+import { composioUserId, executeTool, isRedditConfigured, type Platform } from "./composio";
 
 export function trackedUrl(code: string, platform: string): string {
   const base = process.env.APP_URL || "http://localhost:3001";
@@ -18,7 +18,10 @@ export async function publishPost(postId: string): Promise<{ ok: boolean; error?
   const business = post.campaign.business;
   const platform = post.platform as Platform;
   const connection = business.connections.find((c) => c.platform === platform);
-  if (!connection || connection.status !== "active") {
+
+  if (platform === "reddit") {
+    if (!isRedditConfigured()) return { ok: false, error: "reddit is not configured" };
+  } else if (!connection || connection.status !== "active") {
     return { ok: false, error: `${platform} is not connected` };
   }
 
@@ -48,6 +51,7 @@ export async function publishPost(postId: string): Promise<{ ok: boolean; error?
     }
 
     if (platform === "facebook") {
+      if (!connection?.externalId) throw new Error("Facebook Page not connected");
       const message = [post.body, post.hashtags].filter(Boolean).join("\n\n");
       const res = await executeTool("FACEBOOK_CREATE_POST", userId, {
         page_id: connection.externalId,
@@ -62,6 +66,7 @@ export async function publishPost(postId: string): Promise<{ ok: boolean; error?
     }
 
     if (platform === "instagram") {
+      if (!connection?.externalId) throw new Error("Instagram account not connected");
       if (!post.imageUrl) throw new Error("Instagram requires an image URL");
       const caption = [post.body, url ? `Link in bio / ${url}` : "", post.hashtags]
         .filter(Boolean)

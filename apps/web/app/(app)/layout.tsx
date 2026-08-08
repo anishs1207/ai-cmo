@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { isRedditConfigured } from "../../lib/composio";
 import { getBusiness } from "../../lib/db";
 import { Sidebar } from "../../components/Sidebar";
 
@@ -6,7 +7,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const business = await getBusiness();
   if (!business) redirect("/onboarding");
 
-  const connected = business.connections.filter((c) => c.status === "active").length;
+  const connected = isRedditConfigured() ? 1 : 0;
 
   return (
     <div className="shell">

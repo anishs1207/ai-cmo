@@ -1,11 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { PlatformBadge } from "../../../../components/icons";
-
-const ALL = ["instagram", "facebook", "reddit"] as const;
+import { ORGANIC_PLATFORMS } from "../../../../lib/composio";
 
 export function NewCampaignForm({
   connectedPlatforms,
@@ -19,7 +17,6 @@ export function NewCampaignForm({
   const [objective, setObjective] = useState("");
   const [platforms, setPlatforms] = useState<string[]>(connectedPlatforms);
   const [count, setCount] = useState(2);
-  const [imageUrl, setImageUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -33,17 +30,13 @@ export function NewCampaignForm({
       setError("Pick at least one connected channel.");
       return;
     }
-    if (platforms.includes("instagram") && !imageUrl.trim()) {
-      setError("Instagram posts need an image URL (public link to a product photo or creative).");
-      return;
-    }
     setError(null);
     setLoading(true);
     try {
       const res = await fetch("/api/campaigns", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, objective, platforms, count, imageUrl }),
+        body: JSON.stringify({ name, objective, platforms, count }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Generation failed");
@@ -58,13 +51,11 @@ export function NewCampaignForm({
   if (connectedPlatforms.length === 0) {
     return (
       <div className="card empty-state rise">
-        <h3 className="title-3">Connect a channel first</h3>
-        <p className="caption" style={{ margin: "4px 0 18px" }}>
-          Ripple needs at least one connected channel to publish your campaign.
+        <h3 className="title-3">Reddit is not configured yet</h3>
+        <p className="caption" style={{ margin: "4px 0 0" }}>
+          Ask your workspace admin to set <code>REDDIT_SHARED_USER_ID</code> in the server environment and connect
+          Reddit in Composio.
         </p>
-        <Link href="/connections" className="btn btn-primary" style={{ margin: "0 auto" }}>
-          Go to Connections
-        </Link>
       </div>
     );
   }
@@ -97,7 +88,7 @@ export function NewCampaignForm({
         <div className="field">
           <span>Channels</span>
           <div className="row" style={{ gap: 8, flexWrap: "wrap" }}>
-            {ALL.map((p) => {
+            {ORGANIC_PLATFORMS.map((p) => {
               const connected = connectedPlatforms.includes(p);
               const selected = platforms.includes(p);
               return (
@@ -136,18 +127,6 @@ export function NewCampaignForm({
           </select>
         </label>
 
-        {platforms.includes("instagram") && (
-          <label className="field">
-            <span>Image URL for Instagram</span>
-            <input
-              className="input"
-              placeholder="https://... (public JPG/PNG of your product or creative)"
-              value={imageUrl}
-              onChange={(e) => setImageUrl(e.target.value)}
-            />
-            <small>Instagram requires an image. Facebook and Reddit posts work without one.</small>
-          </label>
-        )}
       </div>
 
       {learnings.length > 0 && (
