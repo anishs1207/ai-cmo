@@ -15,6 +15,8 @@
   "dependencies": {
     "@composio/core": "^0.14.1",
     "@google/genai": "^2.16.0",
+    "@neondatabase/auth": "^0.4.2-beta",
+    "@neondatabase/auth-ui": "^0.2.1-beta",
     "@prisma/client": "^6.19.3",
     "@repo/ui": "*",
     "geist": "^1.7.1",

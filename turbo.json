@@ -4,6 +4,9 @@
   "globalEnv": [
     "NODE_ENV",
     "NEXT_RUNTIME",
+    "DATABASE_URL",
+    "NEON_AUTH_BASE_URL",
+    "NEON_AUTH_COOKIE_SECRET",
     "GEMINI_API_KEY",
     "COMPOSIO_API_KEY",
     "REDDIT_SHARED_USER_ID",

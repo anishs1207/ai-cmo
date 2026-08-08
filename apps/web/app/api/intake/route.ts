@@ -2,9 +2,18 @@ import { NextResponse } from "next/server";
 import { db } from "../../../lib/db";
 import { scrapeSite } from "../../../lib/scrape";
 import { extractKB } from "../../../lib/kb";
+import { requireUser } from "../../../lib/auth/server";
 
 export async function POST(req: Request) {
   try {
+    const user = await requireUser();
+    if (!user) return NextResponse.json({ error: "Sign in required" }, { status: 401 });
+
+    const existing = await db.business.findUnique({ where: { userId: user.id } });
+    if (existing) {
+      return NextResponse.json({ error: "You already have a business set up." }, { status: 409 });
+    }
+
     const { websiteUrl, description, promote } = (await req.json()) as {
       websiteUrl?: string;
       description?: string;
@@ -38,6 +47,7 @@ export async function POST(req: Request) {
 
     const business = await db.business.create({
       data: {
+        userId: user.id,
         name: kb.businessName || "My business",
         websiteUrl: websiteUrl?.trim() || null,
         description: description?.trim() || null,

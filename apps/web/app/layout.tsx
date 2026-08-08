@@ -1,6 +1,7 @@
 ﻿import "./globals.css";
 import type { Metadata } from "next";
 import { GeistSans } from "geist/font/sans";
+import { Providers } from "../components/Providers";
 import { Toaster } from "../components/toast";
 
 export const metadata: Metadata = {
@@ -11,9 +12,9 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={GeistSans.className}>
-        {children}
+        <Providers>{children}</Providers>
         <Toaster />
       </body>
     </html>

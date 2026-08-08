@@ -52,10 +52,14 @@ npm run dev             # http://localhost:3001
 | Var | What |
 | --- | --- |
 | `DATABASE_URL` | Neon Postgres connection string |
+| `NEON_AUTH_BASE_URL` | Auth URL from Neon Console (Auth tab) |
+| `NEON_AUTH_COOKIE_SECRET` | 32+ char secret for session cookies (`openssl rand -base64 32`) |
 | `GEMINI_API_KEY` | Google AI Studio key (uses `gemini-2.5-flash`) |
 | `COMPOSIO_API_KEY` | app.composio.dev — **Reddit only** (shared app account) |
 | `REDDIT_SHARED_USER_ID` | stable id, e.g. `ripple-shared-reddit`. Reddit is connected once in Composio internally — not exposed to end users |
 | `APP_URL` | public URL of this app — tracked links are built from it |
+
+**Auth setup:** In the [Neon Console](https://console.neon.tech), open your project → **Auth** → enable Managed Better Auth → copy the Auth URL into `NEON_AUTH_BASE_URL`. Google sign-in works out of the box for development.
 
 Tracked-link clicks only register when `APP_URL` is reachable by the people clicking (use a tunnel like `cloudflared`/`ngrok` in dev).
 

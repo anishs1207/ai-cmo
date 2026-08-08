@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { UserButton } from "@neondatabase/auth-ui";
 import { IconHome, IconMegaphone, IconBook } from "./icons";
 
 const items = [
@@ -39,9 +40,14 @@ export function Sidebar({
       })}
 
       <div className="sidebar-foot">
-        <div style={{ fontSize: 12.5, fontWeight: 600 }}>{businessName}</div>
-        <div className="caption" style={{ fontSize: 11.5 }}>
-          {connected > 0 ? "Reddit ready" : "Reddit not configured"}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
+          <div>
+            <div style={{ fontSize: 12.5, fontWeight: 600 }}>{businessName}</div>
+            <div className="caption" style={{ fontSize: 11.5 }}>
+              {connected > 0 ? "Reddit ready" : "Reddit not configured"}
+            </div>
+          </div>
+          <UserButton size="icon" />
         </div>
       </div>
     </aside>

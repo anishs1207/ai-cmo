@@ -26,6 +26,7 @@ const kb = {
 
 const business = await db.business.create({
   data: {
+    userId: "demo-user",
     name: kb.businessName,
     websiteUrl: "https://loomandleaf.example.com",
     description: "Organic herbal tea DTC brand.",
