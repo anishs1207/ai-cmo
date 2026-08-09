@@ -1,5 +1,6 @@
 "use server";
 
+import { redirect } from "next/navigation";
 import { requireUser } from "../../lib/auth/server";
 import { db } from "../../lib/db";
 import { extractKB } from "../../lib/kb";
@@ -16,7 +17,8 @@ export async function submitIntake(input: {
   if (!user) return { ok: false, error: "Sign in required" };
 
   const existing = await db.business.findUnique({ where: { userId: user.id } });
-  if (existing) return { ok: false, error: "You already have a business set up." };
+  // Already saved — send them on; returning an error left the UI stuck on the spinner.
+  if (existing) redirect("/kb");
 
   const websiteUrl = input.websiteUrl?.trim() || "";
   const description = input.description?.trim() || "";
@@ -63,5 +65,5 @@ export async function submitIntake(input: {
     return { ok: false, error: message };
   }
 
-  return { ok: true };
+  redirect("/kb");
 }

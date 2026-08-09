@@ -1,8 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { submitIntake } from "./actions";
 
 const steps = [
   "Reading your website",
@@ -12,7 +10,6 @@ const steps = [
 ];
 
 export default function Onboarding() {
-  const router = useRouter();
   const [websiteUrl, setWebsiteUrl] = useState("");
   const [description, setDescription] = useState("");
   const [promote, setPromote] = useState("");
@@ -28,16 +25,27 @@ export default function Onboarding() {
     }
     setError(null);
     setLoading(true);
+    setStepIdx(0);
     const ticker = setInterval(() => setStepIdx((i) => Math.min(i + 1, steps.length - 1)), 4500);
     try {
-      const result = await submitIntake({ websiteUrl, description, promote });
-      if (!result.ok) {
-        setError(result.error);
-        setLoading(false);
+      // Use the API route + hard navigation. A server action + soft router.push
+      // can hang after the DB write: the onboarding layout redirects once a
+      // business exists, so the client never clears the loading spinner.
+      const res = await fetch("/api/intake", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ websiteUrl, description, promote }),
+      });
+      const data = (await res.json().catch(() => ({}))) as { error?: string };
+
+      // 409 = already onboarded (data is saved) — continue to KB.
+      if (res.ok || res.status === 409) {
+        window.location.assign("/kb");
         return;
       }
-      router.push("/kb");
-      router.refresh();
+
+      setError(data.error || "Something went wrong");
+      setLoading(false);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
       setLoading(false);
