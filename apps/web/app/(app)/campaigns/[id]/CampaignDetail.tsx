@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { PlatformBadge } from "../../../../components/icons";
 import { StatusChip } from "../../../../components/StatusChip";
 import { toast } from "../../../../components/toast";
@@ -102,18 +104,9 @@ export function CampaignDetail({
               </button>
               <div style={{ fontSize: 13, marginTop: 6 }}>{ins.summary}</div>
               {openInsight === ins.id && (
-                <pre
-                  style={{
-                    whiteSpace: "pre-wrap",
-                    fontFamily: "inherit",
-                    fontSize: 12.5,
-                    lineHeight: 1.6,
-                    margin: "10px 0 0",
-                    color: "var(--text-2)",
-                  }}
-                >
-                  {ins.detail}
-                </pre>
+                <div className="md-body" style={{ marginTop: 10 }}>
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>{ins.detail}</ReactMarkdown>
+                </div>
               )}
             </div>
           ))}

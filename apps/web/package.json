@@ -22,7 +22,9 @@
     "geist": "^1.7.1",
     "next": "16.2.0",
     "react": "^19.2.0",
-    "react-dom": "^19.1.0"
+    "react-dom": "^19.1.0",
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1"
   },
   "devDependencies": {
     "@next/eslint-plugin-next": "^16.2.0",
