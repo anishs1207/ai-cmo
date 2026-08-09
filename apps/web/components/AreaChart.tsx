@@ -35,7 +35,7 @@ export function AreaChart({
       viewBox={`0 0 ${width} ${height}`}
       style={{ width: "100%", height: "auto", display: "block" }}
       role="img"
-      aria-label="Clicks over time"
+      aria-label="Views over time"
     >
       <defs>
         <linearGradient id="areaFill" x1="0" y1="0" x2="0" y2="1">

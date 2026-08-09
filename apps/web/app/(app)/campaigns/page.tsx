@@ -12,7 +12,7 @@ export default async function CampaignsPage() {
     where: { businessId: business.id },
     orderBy: { createdAt: "desc" },
     include: {
-      posts: { include: { link: { include: { _count: { select: { clicks: true } } } } } },
+      posts: true,
     },
   });
 
@@ -21,7 +21,7 @@ export default async function CampaignsPage() {
       <div className="page-head rise">
         <div>
           <h1 className="display">Campaigns</h1>
-          <p>Each campaign is a batch of AI-written posts across your channels, with every click tracked.</p>
+          <p>Each campaign is a batch of AI-written posts across your channels. Ripple shows Reddit views when available.</p>
         </div>
         <Link href="/campaigns/new" className="btn btn-primary">
           New campaign
@@ -41,7 +41,8 @@ export default async function CampaignsPage() {
       ) : (
         <div className="stack">
           {campaigns.map((c) => {
-            const clicks = c.posts.reduce((n, p) => n + (p.link?._count.clicks ?? 0), 0);
+            const withViews = c.posts.filter((p) => p.viewCount != null);
+            const views = withViews.reduce((n, p) => n + (p.viewCount ?? 0), 0);
             const published = c.posts.filter((p) => p.status === "published").length;
             const platforms = [...new Set(c.posts.map((p) => p.platform))];
             return (
@@ -62,8 +63,10 @@ export default async function CampaignsPage() {
                     ))}
                   </span>
                   <div style={{ textAlign: "right" }}>
-                    <div style={{ fontSize: 20, fontWeight: 700, letterSpacing: "-0.02em" }}>{clicks}</div>
-                    <div className="caption" style={{ fontSize: 11 }}>clicks</div>
+                    <div style={{ fontSize: 20, fontWeight: 700, letterSpacing: "-0.02em" }}>
+                      {withViews.length === 0 ? "—" : views}
+                    </div>
+                    <div className="caption" style={{ fontSize: 11 }}>views</div>
                   </div>
                 </div>
               </Link>

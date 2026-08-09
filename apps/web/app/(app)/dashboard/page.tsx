@@ -2,28 +2,29 @@ import Link from "next/link";
 import { ORGANIC_PLATFORMS } from "../../../lib/platforms";
 import { db, requireBusiness } from "../../../lib/db";
 import { publishDueScheduled } from "../../../lib/publish";
+import { refreshRedditViews } from "../../../lib/views";
 import { AreaChart } from "../../../components/AreaChart";
 import { PlatformBadge } from "../../../components/icons";
 import { StatusChip } from "../../../components/StatusChip";
 
 export const dynamic = "force-dynamic";
 
+function formatViews(n: number | null | undefined): string {
+  return n == null ? "—" : String(n);
+}
+
 export default async function Dashboard() {
   const business = await requireBusiness();
 
-  // Lazy scheduler: publish anything whose scheduled time has passed.
+  // Lazy scheduler + view refresh (throttled inside refreshRedditViews).
   await publishDueScheduled().catch(() => 0);
+  await refreshRedditViews({ businessId: business.id }).catch(() => 0);
 
-  const [clicks, posts, campaigns, latestInsight] = await Promise.all([
-    db.click.findMany({
-      where: { link: { businessId: business.id } },
-      orderBy: { ts: "asc" },
-      include: { link: { include: { post: { select: { platform: true } } } } },
-    }),
+  const [posts, campaigns, latestInsight] = await Promise.all([
     db.post.findMany({
       where: { campaign: { businessId: business.id } },
       orderBy: { createdAt: "desc" },
-      include: { link: { include: { _count: { select: { clicks: true } } } }, campaign: true },
+      include: { campaign: true },
     }),
     db.campaign.findMany({ where: { businessId: business.id } }),
     db.insight.findFirst({ where: { businessId: business.id }, orderBy: { createdAt: "desc" } }),
@@ -32,35 +33,55 @@ export default async function Dashboard() {
   const now = new Date();
   const dayMs = 86_400_000;
   const days = 14;
+  const published = posts.filter((p) => p.status === "published");
+  const withViews = published.filter((p) => p.viewCount != null);
+  const totalViews = withViews.reduce((n, p) => n + (p.viewCount ?? 0), 0);
+
   const series = Array.from({ length: days }, (_, i) => {
     const d = new Date(now.getTime() - (days - 1 - i) * dayMs);
     const key = d.toISOString().slice(0, 10);
     return {
       label: d.toLocaleDateString("en", { month: "short", day: "numeric" }),
-      value: clicks.filter((c) => c.ts.toISOString().slice(0, 10) === key).length,
+      value: published
+        .filter((p) => p.publishedAt && p.publishedAt.toISOString().slice(0, 10) === key)
+        .reduce((n, p) => n + (p.viewCount ?? 0), 0),
     };
   });
 
-  const clicks7d = clicks.filter((c) => now.getTime() - c.ts.getTime() < 7 * dayMs).length;
-  const clicksPrev7d = clicks.filter((c) => {
-    const age = now.getTime() - c.ts.getTime();
-    return age >= 7 * dayMs && age < 14 * dayMs;
-  }).length;
-  const delta = clicksPrev7d === 0 ? null : Math.round(((clicks7d - clicksPrev7d) / clicksPrev7d) * 100);
+  const views7d = published
+    .filter((p) => p.publishedAt && now.getTime() - p.publishedAt.getTime() < 7 * dayMs)
+    .reduce((n, p) => n + (p.viewCount ?? 0), 0);
+  const viewsPrev7d = published
+    .filter((p) => {
+      if (!p.publishedAt) return false;
+      const age = now.getTime() - p.publishedAt.getTime();
+      return age >= 7 * dayMs && age < 14 * dayMs;
+    })
+    .reduce((n, p) => n + (p.viewCount ?? 0), 0);
+  const delta = viewsPrev7d === 0 ? null : Math.round(((views7d - viewsPrev7d) / viewsPrev7d) * 100);
 
-  const published = posts.filter((p) => p.status === "published");
   const byPlatform = ORGANIC_PLATFORMS.map((platform) => ({
     platform,
-    clicks: clicks.filter((c) => c.link.post?.platform === platform).length,
+    views: published
+      .filter((p) => p.platform === platform)
+      .reduce((n, p) => n + (p.viewCount ?? 0), 0),
     posts: published.filter((p) => p.platform === platform).length,
+    hasViews: published.some((p) => p.platform === platform && p.viewCount != null),
   }));
-  const maxPlatform = Math.max(1, ...byPlatform.map((b) => b.clicks));
+  const maxPlatform = Math.max(1, ...byPlatform.map((b) => b.views));
 
   const stats = [
-    { label: "Visitors sent", value: clicks.length, sub: "all-time tracked clicks" },
     {
-      label: "Visitors · 7 days",
-      value: clicks7d,
+      label: "Post views",
+      value: withViews.length === 0 ? "—" : totalViews,
+      sub:
+        withViews.length === 0
+          ? "Reddit often hides view counts"
+          : `${withViews.length} post${withViews.length === 1 ? "" : "s"} with data`,
+    },
+    {
+      label: "Views · posts last 7 days",
+      value: withViews.length === 0 ? "—" : views7d,
       sub: delta === null ? "no prior week to compare" : `${delta >= 0 ? "+" : ""}${delta}% vs previous week`,
       good: delta !== null && delta >= 0,
     },
@@ -73,7 +94,7 @@ export default async function Dashboard() {
       <div className="page-head rise">
         <div>
           <h1 className="display">Welcome, {business.name}</h1>
-          <p>Traffic your organic content is sending home — and how this week compares.</p>
+          <p>How your organic posts are performing on Reddit — views when Reddit exposes them.</p>
         </div>
         <Link href="/campaigns/new" className="btn btn-primary">
           New campaign
@@ -95,8 +116,8 @@ export default async function Dashboard() {
       <div className="grid-2" style={{ gridTemplateColumns: "2fr 1fr", marginBottom: 14 }}>
         <div className="card card-pad rise">
           <div className="spread" style={{ marginBottom: 12 }}>
-            <h2 className="title-3">Visitors over time</h2>
-            <span className="caption">last 14 days</span>
+            <h2 className="title-3">Views by publish day</h2>
+            <span className="caption">last 14 days · current totals</span>
           </div>
           <AreaChart data={series} />
         </div>
@@ -112,15 +133,15 @@ export default async function Dashboard() {
                     <span style={{ fontSize: 13, fontWeight: 600, textTransform: "capitalize" }}>{b.platform}</span>
                   </span>
                   <span className="caption">
-                    {b.clicks} clicks · {b.posts} posts
+                    {b.hasViews ? `${b.views} views` : "— views"} · {b.posts} posts
                   </span>
                 </div>
                 <div style={{ height: 6, borderRadius: 999, background: "rgba(0,0,0,0.06)", overflow: "hidden" }}>
                   <div
                     style={{
                       height: "100%",
-                      width: `${(b.clicks / maxPlatform) * 100}%`,
-                      minWidth: b.clicks > 0 ? 8 : 0,
+                      width: `${(b.views / maxPlatform) * 100}%`,
+                      minWidth: b.views > 0 ? 8 : 0,
                       borderRadius: 999,
                       background: "var(--accent)",
                       transition: "width 600ms var(--ease-out)",
@@ -168,7 +189,7 @@ export default async function Dashboard() {
                 <th>Post</th>
                 <th>Campaign</th>
                 <th>Status</th>
-                <th style={{ textAlign: "right" }}>Clicks</th>
+                <th style={{ textAlign: "right" }}>Views</th>
               </tr>
             </thead>
             <tbody>
@@ -194,7 +215,7 @@ export default async function Dashboard() {
                   <td>
                     <StatusChip status={p.status} />
                   </td>
-                  <td style={{ textAlign: "right", fontWeight: 600 }}>{p.link?._count.clicks ?? 0}</td>
+                  <td style={{ textAlign: "right", fontWeight: 600 }}>{formatViews(p.viewCount)}</td>
                 </tr>
               ))}
             </tbody>

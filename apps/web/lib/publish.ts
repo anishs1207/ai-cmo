@@ -26,7 +26,8 @@ export async function publishPost(postId: string): Promise<{ ok: boolean; error?
   }
 
   const userId = composioUserId(platform, business.id);
-  const url = post.link ? trackedUrl(post.link.code, platform) : business.websiteUrl ?? "";
+  // Plain site URL in the post — no Ripple /r hop (trust on Reddit).
+  const url = business.websiteUrl?.trim() || "";
 
   await db.post.update({ where: { id: post.id }, data: { status: "publishing", error: null } });
 
@@ -44,7 +45,7 @@ export async function publishPost(postId: string): Promise<{ ok: boolean; error?
       });
       if (!res.successful) throw new Error(res.error || "Reddit post failed");
       const data = unwrap(res.data);
-      externalId = str(data, "id") ?? str(data, "name");
+      externalId = normalizeRedditThingId(str(data, "name") ?? str(data, "id"));
       externalUrl = str(data, "permalink")
         ? `https://reddit.com${str(data, "permalink")}`
         : (str(data, "url") ?? null);
@@ -129,4 +130,12 @@ function unwrap(data: Record<string, unknown>): Record<string, unknown> {
 function str(obj: Record<string, unknown>, key: string): string | null {
   const v = obj[key];
   return typeof v === "string" && v ? v : typeof v === "number" ? String(v) : null;
+}
+
+/** Prefer Reddit fullname `t3_…` so later view fetches work. */
+function normalizeRedditThingId(raw: string | null): string | null {
+  if (!raw) return null;
+  if (/^t3_/i.test(raw)) return raw;
+  if (/^[a-z0-9]+$/i.test(raw)) return `t3_${raw}`;
+  return raw;
 }

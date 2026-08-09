@@ -21,8 +21,7 @@ type PostVM = {
   scheduledAt: string | null;
   publishedAt: string | null;
   externalUrl: string | null;
-  clicks: number;
-  trackedUrl: string | null;
+  viewCount: number | null;
 };
 
 type InsightVM = { id: string; summary: string; detail: string; createdAt: string };
@@ -31,17 +30,24 @@ export function CampaignDetail({
   campaign,
   posts,
   insights,
+  websiteUrl,
 }: {
   campaign: { id: string; name: string; objective: string | null; status: string; createdAt: string };
   posts: PostVM[];
   insights: InsightVM[];
+  websiteUrl: string | null;
 }) {
   const router = useRouter();
   const [analyzing, setAnalyzing] = useState(false);
   const [openInsight, setOpenInsight] = useState<string | null>(insights[0]?.id ?? null);
 
-  const totalClicks = posts.reduce((n, p) => n + p.clicks, 0);
+  const viewsKnown = posts.filter((p) => p.viewCount != null);
+  const totalViews = viewsKnown.reduce((n, p) => n + (p.viewCount ?? 0), 0);
   const publishedCount = posts.filter((p) => p.status === "published").length;
+  const viewsLabel =
+    viewsKnown.length === 0
+      ? "views unavailable"
+      : `${totalViews} view${totalViews === 1 ? "" : "s"}`;
 
   async function analyze() {
     setAnalyzing(true);
@@ -68,7 +74,7 @@ export function CampaignDetail({
           </div>
           <p>
             {campaign.objective || "Drive traffic"} · {publishedCount}/{posts.length} published ·{" "}
-            <b>{totalClicks} clicks</b>
+            <b>{viewsLabel}</b>
           </p>
         </div>
         <button className="btn btn-secondary" onClick={analyze} disabled={analyzing || publishedCount === 0}>
@@ -116,14 +122,22 @@ export function CampaignDetail({
 
       <div className="stack">
         {posts.map((p) => (
-          <PostCard key={p.id} post={p} onChanged={() => router.refresh()} />
+          <PostCard key={p.id} post={p} websiteUrl={websiteUrl} onChanged={() => router.refresh()} />
         ))}
       </div>
     </>
   );
 }
 
-function PostCard({ post, onChanged }: { post: PostVM; onChanged: () => void }) {
+function PostCard({
+  post,
+  websiteUrl,
+  onChanged,
+}: {
+  post: PostVM;
+  websiteUrl: string | null;
+  onChanged: () => void;
+}) {
   const editable = post.status === "draft" || post.status === "failed" || post.status === "scheduled";
   const [mode, setMode] = useState<"view" | "edit" | "rewrite" | "schedule">("view");
   const [busy, setBusy] = useState<"publish" | "save" | "rewrite" | "schedule" | null>(null);
@@ -181,8 +195,8 @@ function PostCard({ post, onChanged }: { post: PostVM; onChanged: () => void }) 
           </div>
         </div>
         <div className="row" style={{ gap: 10 }}>
-          <span style={{ fontWeight: 700 }}>{post.clicks}</span>
-          <span className="caption" style={{ fontSize: 11 }}>clicks</span>
+          <span style={{ fontWeight: 700 }}>{post.viewCount == null ? "—" : post.viewCount}</span>
+          <span className="caption" style={{ fontSize: 11 }}>views</span>
           <StatusChip status={post.status} />
         </div>
       </div>
@@ -265,9 +279,9 @@ function PostCard({ post, onChanged }: { post: PostVM; onChanged: () => void }) 
         style={{ padding: "12px 20px", background: "var(--surface-2)", borderTop: "1px solid var(--border)", flexWrap: "wrap" }}
       >
         <div className="caption" style={{ fontSize: 11.5 }}>
-          {post.trackedUrl && (
+          {websiteUrl && (
             <>
-              tracked link: <span style={{ fontFamily: "monospace" }}>{post.trackedUrl}</span>
+              link: <span style={{ fontFamily: "monospace" }}>{websiteUrl}</span>
             </>
           )}
           {post.scheduledAt && post.status === "scheduled" && (

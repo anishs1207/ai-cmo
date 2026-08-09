@@ -1,9 +1,11 @@
 import { NextResponse } from "next/server";
 import { analyzeCampaign } from "../../../../../lib/campaign";
+import { refreshRedditViews } from "../../../../../lib/views";
 
 export async function POST(_req: Request, ctx: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await ctx.params;
+    await refreshRedditViews({ campaignId: id, force: true }).catch(() => 0);
     const { insight } = await analyzeCampaign(id);
     return NextResponse.json({ id: insight.id, summary: insight.summary });
   } catch (err) {

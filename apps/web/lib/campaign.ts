@@ -68,13 +68,13 @@ export function newLinkCode(): string {
   return Math.random().toString(36).slice(2, 8);
 }
 
-/** Analyze a finished/live campaign's real click data and store learnings for future generations. */
+/** Analyze a finished/live campaign's real view data and store learnings for future generations. */
 export async function analyzeCampaign(campaignId: string) {
   const campaign = await db.campaign.findUnique({
     where: { id: campaignId },
     include: {
       business: true,
-      posts: { include: { link: { include: { clicks: true } } } },
+      posts: true,
     },
   });
   if (!campaign) throw new Error("Campaign not found");
@@ -89,8 +89,8 @@ export async function analyzeCampaign(campaignId: string) {
     body: p.body.slice(0, 400),
     hashtags: p.hashtags ?? undefined,
     publishedAt: p.publishedAt,
-    clicks: p.link?.clicks.length ?? 0,
-    clicksByDay: bucketByDay(p.link?.clicks.map((c) => c.ts) ?? []),
+    views: p.viewCount, // null = Reddit did not expose view_count
+    viewsUpdatedAt: p.viewsUpdatedAt,
   }));
 
   const analysis = await generateJson<{ summary: string; detail: string; learnings: string[] }>(
@@ -99,16 +99,16 @@ export async function analyzeCampaign(campaignId: string) {
 CAMPAIGN: ${campaign.name}
 OBJECTIVE: ${campaign.objective ?? "traffic"}
 
-PER-POST PERFORMANCE (clicks = real tracked link clicks to the business site):
+PER-POST PERFORMANCE (views = Reddit post view_count when available; null means unavailable — do NOT invent numbers):
 ${JSON.stringify(rows, null, 2)}
 
 Return JSON:
 {
   "summary": string,      // one headline sentence: the single most important takeaway
   "detail": string,       // markdown report: what worked, what flopped, per-platform verdicts, concrete next-step recommendations
-  "learnings": string[]   // 3-6 short, reusable rules for the NEXT campaign, e.g. "Reddit value-first posts in r/X outperform promotional angles 4:1"
+  "learnings": string[]   // 3-6 short, reusable rules for the NEXT campaign, e.g. "Reddit value-first posts in r/X get more views than promotional angles"
 }
-Be honest: with low click counts, say the data is thin and hedge accordingly.`,
+Be honest: when views are null or low, say the data is thin and hedge accordingly.`,
   );
 
   const insight = await db.insight.create({
@@ -125,15 +125,6 @@ Be honest: with low click counts, say the data is thin and hedge accordingly.`,
   });
 
   return { insight, learnings: analysis.learnings };
-}
-
-function bucketByDay(dates: Date[]): Record<string, number> {
-  const out: Record<string, number> = {};
-  for (const d of dates) {
-    const key = d.toISOString().slice(0, 10);
-    out[key] = (out[key] ?? 0) + 1;
-  }
-  return out;
 }
 
 export { generateText };

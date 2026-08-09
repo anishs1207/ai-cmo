@@ -7,10 +7,10 @@ AI marketing operator for organic social. It reads your website, builds a market
 1. **Onboarding** — paste your website URL (and/or a description + what to promote). The site is scraped and Gemini 2.5 Flash extracts a structured Business KB: overview, audience segments, USP, pricing, brand voice/tone/personality/identity, testimonials, competitors, objections, target subreddits, content themes.
 2. **Knowledge Base** (`/kb`) — review and edit everything the agent believes. All content generation is grounded in this.
 3. **Reddit** — configured once by the admin via `REDDIT_SHARED_USER_ID` in server `.env` and a Composio connection (not a user-facing OAuth flow).
-4. **Campaigns** (`/campaigns/new`) — pick channels, objective and posts-per-channel. Gemini writes distinct angles per platform (Reddit community-native post with target subreddit). Every post carries a tracked short link (`/r/<code>`).
+4. **Campaigns** (`/campaigns/new`) — pick channels, objective and posts-per-channel. Gemini writes distinct angles per platform (Reddit community-native post with target subreddit). Posts append the plain business website URL (no redirect hop).
 5. **Publish** — publish now or schedule. Publishing runs through Composio tools (`REDDIT_CREATE_REDDIT_POST`). Scheduled posts are flushed lazily on dashboard loads.
-6. **Dashboard** (`/`) — visitors over time chart, per-channel breakdown, post performance. Tracked links log each click and 302-redirect to your site with UTM parameters.
-7. **Feedback loop** — "Analyze performance" on a campaign feeds real click data back to Gemini, which produces learnings. Those learnings are automatically injected into the next campaign's generation prompt, so the agent improves with every run.
+6. **Dashboard** (`/dashboard`) — post views when Reddit exposes them, per-channel breakdown, post performance. Views refresh via Composio on page load.
+7. **Feedback loop** — "Analyze performance" on a campaign feeds real view data back to Gemini, which produces learnings. Those learnings are automatically injected into the next campaign's generation prompt, so the agent improves with every run.
 
 ## Roadmap
 

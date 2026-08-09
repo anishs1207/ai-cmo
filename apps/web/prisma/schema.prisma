@@ -64,10 +64,12 @@ model Post {
   error       String?
   scheduledAt DateTime?
   publishedAt DateTime?
-  externalId  String?
-  externalUrl String?
-  link        TrackedLink?
-  createdAt   DateTime  @default(now())
+  externalId      String?
+  externalUrl     String?
+  viewCount       Int?
+  viewsUpdatedAt  DateTime?
+  link            TrackedLink?
+  createdAt       DateTime  @default(now())
 }
 
 model TrackedLink {

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { db, getBusiness } from "../../../lib/db";
-import { generateCampaignPosts, newLinkCode } from "../../../lib/campaign";
+import { generateCampaignPosts } from "../../../lib/campaign";
 import { EMPTY_KB, type BusinessKB } from "../../../lib/kb";
 import type { Platform } from "../../../lib/composio";
 import { ORGANIC_PLATFORMS } from "../../../lib/composio";
@@ -49,8 +49,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "The model returned no posts. Try again." }, { status: 502 });
     }
 
-    const destination = business.websiteUrl || "";
-
     const campaign = await db.campaign.create({
       data: {
         businessId: business.id,
@@ -61,7 +59,7 @@ export async function POST(req: Request) {
     });
 
     for (const g of generated) {
-      const post = await db.post.create({
+      await db.post.create({
         data: {
           campaignId: campaign.id,
           platform: g.platform,
@@ -73,16 +71,6 @@ export async function POST(req: Request) {
           rationale: g.rationale,
         },
       });
-      if (destination) {
-        await db.trackedLink.create({
-          data: {
-            code: newLinkCode(),
-            businessId: business.id,
-            postId: post.id,
-            destination,
-          },
-        });
-      }
     }
 
     return NextResponse.json({ id: campaign.id });
