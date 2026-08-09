@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { PlatformBadge } from "../../../../components/icons";
-import { ORGANIC_PLATFORMS } from "../../../../lib/composio";
+import { ORGANIC_PLATFORMS } from "../../../../lib/platforms";
 
 export function NewCampaignForm({
   connectedPlatforms,
@@ -101,8 +101,8 @@ export function NewCampaignForm({
                   style={{
                     height: 40,
                     paddingLeft: 10,
-                    background: selected ? "rgba(10,132,255,0.08)" : "var(--surface)",
-                    border: `1.5px solid ${selected ? "var(--accent)" : "var(--border-strong)"}`,
+                    background: selected ? "rgba(101,107,55,0.12)" : "var(--surface)",
+                    border: `1.5px solid ${selected ? "var(--text-2)" : "var(--border-strong)"}`,
                     color: selected ? "var(--accent-deep)" : "var(--text-2)",
                     opacity: connected ? 1 : 0.4,
                   }}

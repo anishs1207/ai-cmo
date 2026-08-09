@@ -1,6 +1,7 @@
-import { AuthView } from "@neondatabase/auth-ui";
+import { AuthForm } from "../../../components/AuthForm";
 import { authViewPaths } from "@neondatabase/auth-ui/server";
 
+export const dynamic = "force-dynamic";
 export const dynamicParams = false;
 
 export function generateStaticParams() {
@@ -11,18 +12,18 @@ export default async function AuthPage({ params }: { params: Promise<{ path: str
   const { path } = await params;
 
   return (
-    <main
-      style={{
-        minHeight: "100vh",
-        display: "grid",
-        placeItems: "center",
-        padding: 24,
-        background:
-          "radial-gradient(80% 60% at 50% -10%, rgba(10,132,255,0.09) 0%, rgba(10,132,255,0) 70%), var(--bg)",
-      }}
-    >
+    <main className="auth-shell">
       <div style={{ width: "min(420px, 100%)" }}>
-        <AuthView path={path} />
+        <div style={{ textAlign: "center", marginBottom: 22 }}>
+          <span
+            className="brand-mark"
+            style={{ width: 40, height: 40, borderRadius: 11, fontSize: 18, margin: "0 auto 12px" }}
+          >
+            R
+          </span>
+          <div style={{ fontWeight: 650, letterSpacing: "-0.02em", fontSize: 18 }}>Ripple</div>
+        </div>
+        <AuthForm path={path} />
       </div>
     </main>
   );

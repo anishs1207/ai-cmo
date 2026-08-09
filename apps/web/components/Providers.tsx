@@ -16,9 +16,12 @@ export function Providers({ children }: { children: ReactNode }) {
       authClient={authClient}
       navigate={router.push}
       replace={router.replace}
-      onSessionChange={() => router.refresh()}
+      onSessionChange={() => {
+        router.refresh();
+        router.replace("/dashboard");
+      }}
       social={{ providers: ["google"] }}
-      redirectTo="/"
+      redirectTo="/dashboard"
       Link={Link}
     >
       {children}

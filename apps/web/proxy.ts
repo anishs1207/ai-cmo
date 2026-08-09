@@ -9,6 +9,7 @@ export default function proxy(request: NextRequest) {
   if (request.headers.has("Next-Action")) return;
 
   const { pathname } = request.nextUrl;
+  if (pathname === "/") return;
   if (pathname.startsWith("/auth") || pathname.startsWith("/r/")) return;
   if (pathname.startsWith("/api/auth")) return;
 
@@ -18,6 +19,8 @@ export default function proxy(request: NextRequest) {
 export const config = {
   matcher: [
     "/",
+    "/dashboard",
+    "/dashboard/:path*",
     "/onboarding",
     "/campaigns/:path*",
     "/kb",

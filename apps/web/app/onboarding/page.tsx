@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { submitIntake } from "./actions";
 
 const steps = [
   "Reading your website",
@@ -29,13 +30,12 @@ export default function Onboarding() {
     setLoading(true);
     const ticker = setInterval(() => setStepIdx((i) => Math.min(i + 1, steps.length - 1)), 4500);
     try {
-      const res = await fetch("/api/intake", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ websiteUrl, description, promote }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Something went wrong");
+      const result = await submitIntake({ websiteUrl, description, promote });
+      if (!result.ok) {
+        setError(result.error);
+        setLoading(false);
+        return;
+      }
       router.push("/kb");
       router.refresh();
     } catch (err) {
@@ -47,16 +47,7 @@ export default function Onboarding() {
   }
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        display: "grid",
-        placeItems: "center",
-        padding: 24,
-        background:
-          "radial-gradient(80% 60% at 50% -10%, rgba(10,132,255,0.09) 0%, rgba(10,132,255,0) 70%), var(--bg)",
-      }}
-    >
+    <div className="auth-shell">
       <div style={{ width: "min(560px, 100%)" }}>
         <div className="rise" style={{ textAlign: "center", marginBottom: 28 }}>
           <span

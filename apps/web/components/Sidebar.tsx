@@ -6,7 +6,7 @@ import { UserButton } from "@neondatabase/auth-ui";
 import { IconHome, IconMegaphone, IconBook } from "./icons";
 
 const items = [
-  { href: "/", label: "Dashboard", icon: IconHome },
+  { href: "/dashboard", label: "Dashboard", icon: IconHome },
   { href: "/campaigns", label: "Campaigns", icon: IconMegaphone },
   { href: "/kb", label: "Knowledge Base", icon: IconBook },
 ];
@@ -30,7 +30,7 @@ export function Sidebar({
       </div>
 
       {items.map(({ href, label, icon: Icon }) => {
-        const active = href === "/" ? pathname === "/" : pathname.startsWith(href);
+        const active = pathname === href || pathname.startsWith(`${href}/`);
         return (
           <Link key={href} href={href} className={`nav-item ${active ? "active" : ""}`}>
             <Icon />

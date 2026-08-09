@@ -1,10 +1,10 @@
 import Link from "next/link";
-import { ORGANIC_PLATFORMS } from "../../lib/composio";
-import { db, requireBusiness } from "../../lib/db";
-import { publishDueScheduled } from "../../lib/publish";
-import { AreaChart } from "../../components/AreaChart";
-import { PlatformBadge } from "../../components/icons";
-import { StatusChip } from "../../components/StatusChip";
+import { ORGANIC_PLATFORMS } from "../../../lib/platforms";
+import { db, requireBusiness } from "../../../lib/db";
+import { publishDueScheduled } from "../../../lib/publish";
+import { AreaChart } from "../../../components/AreaChart";
+import { PlatformBadge } from "../../../components/icons";
+import { StatusChip } from "../../../components/StatusChip";
 
 export const dynamic = "force-dynamic";
 
@@ -73,7 +73,7 @@ export default async function Dashboard() {
       <div className="page-head rise">
         <div>
           <h1 className="display">Welcome, {business.name}</h1>
-          <p>Here is the traffic your organic content is sending to your site.</p>
+          <p>Traffic your organic content is sending home — and how this week compares.</p>
         </div>
         <Link href="/campaigns/new" className="btn btn-primary">
           New campaign

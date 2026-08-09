@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { BusinessKB } from "../../../lib/kb";
+import { AutoTextarea } from "../../../components/AutoTextarea";
 import { toast } from "../../../components/toast";
 
 const textFields: { key: keyof BusinessKB; label: string; long?: boolean }[] = [
@@ -11,9 +12,9 @@ const textFields: { key: keyof BusinessKB; label: string; long?: boolean }[] = [
   { key: "targetAudience", label: "Target audience", long: true },
   { key: "usp", label: "Unique selling proposition", long: true },
   { key: "pricing", label: "Pricing & offers", long: true },
-  { key: "brandTone", label: "Brand tone" },
-  { key: "brandVoice", label: "Brand voice" },
-  { key: "brandPersonality", label: "Brand personality" },
+  { key: "brandTone", label: "Brand tone", long: true },
+  { key: "brandVoice", label: "Brand voice", long: true },
+  { key: "brandPersonality", label: "Brand personality", long: true },
   { key: "brandIdentity", label: "Brand identity", long: true },
 ];
 
@@ -26,6 +27,19 @@ const listFields: { key: keyof BusinessKB; label: string; hint?: string }[] = [
   { key: "suggestedSubreddits", label: "Target subreddits", hint: "no r/ prefix, one per line" },
   { key: "contentThemes", label: "Content themes" },
 ];
+
+function cleanKb(kb: BusinessKB): BusinessKB {
+  const next = { ...kb };
+  for (const f of listFields) {
+    next[f.key] = (kb[f.key] as string[]).map((s) => s.trim()).filter(Boolean) as never;
+  }
+  for (const f of textFields) {
+    if (typeof next[f.key] === "string") {
+      next[f.key] = (next[f.key] as string).trim() as never;
+    }
+  }
+  return next;
+}
 
 export function KBEditor({ initial }: { initial: BusinessKB }) {
   const [kb, setKb] = useState(initial);
@@ -41,13 +55,15 @@ export function KBEditor({ initial }: { initial: BusinessKB }) {
   async function save() {
     setSaving(true);
     setError(null);
+    const payload = cleanKb(kb);
     try {
       const res = await fetch("/api/business", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ kb }),
+        body: JSON.stringify({ kb: payload }),
       });
       if (!res.ok) throw new Error((await res.json()).error || "Save failed");
+      setKb(payload);
       setSaved(true);
       toast("Knowledge base saved");
     } catch (err) {
@@ -62,14 +78,15 @@ export function KBEditor({ initial }: { initial: BusinessKB }) {
     <div className="stack">
       <div className="grid-2">
         <div className="card card-pad rise">
-          <h2 className="title-3" style={{ marginBottom: 16 }}>Business & brand</h2>
+          <h2 className="title-3" style={{ marginBottom: 16 }}>
+            Business & brand
+          </h2>
           {textFields.map((f) => (
             <label key={f.key} className="field">
               <span>{f.label}</span>
               {f.long ? (
-                <textarea
-                  className="textarea"
-                  style={{ minHeight: 64 }}
+                <AutoTextarea
+                  minRows={f.key === "overview" || f.key === "whatItDoes" ? 4 : 3}
                   value={kb[f.key] as string}
                   onChange={(e) => set(f.key, e.target.value as never)}
                 />
@@ -85,17 +102,16 @@ export function KBEditor({ initial }: { initial: BusinessKB }) {
         </div>
 
         <div className="card card-pad rise">
-          <h2 className="title-3" style={{ marginBottom: 16 }}>Audience, proof & angles</h2>
+          <h2 className="title-3" style={{ marginBottom: 16 }}>
+            Audience, proof & angles
+          </h2>
           {listFields.map((f) => (
             <label key={f.key} className="field">
               <span>{f.label}</span>
-              <textarea
-                className="textarea"
-                style={{ minHeight: 64 }}
+              <AutoTextarea
+                minRows={3}
                 value={(kb[f.key] as string[]).join("\n")}
-                onChange={(e) =>
-                  set(f.key, e.target.value.split("\n").filter((s) => s.trim() !== "") as never)
-                }
+                onChange={(e) => set(f.key, e.target.value.split("\n") as never)}
               />
               {f.hint && <small>{f.hint}</small>}
             </label>

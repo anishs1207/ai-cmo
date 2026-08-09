@@ -1,4 +1,8 @@
 import { Composio } from "@composio/core";
+import type { Platform } from "./platforms";
+
+export type { Platform } from "./platforms";
+export { ORGANIC_PLATFORMS } from "./platforms";
 
 let client: Composio | null = null;
 
@@ -10,11 +14,6 @@ export function composio() {
   }
   return client;
 }
-
-export type Platform = "facebook" | "instagram" | "reddit";
-
-/** Platforms enabled for organic posting in the UI. FB/IG backend code remains for future use. */
-export const ORGANIC_PLATFORMS = ["reddit"] as const satisfies readonly Platform[];
 
 /** Composio user id for the app-owned Reddit account (set in .env after one-time setup). */
 export function redditSharedUserId(): string {

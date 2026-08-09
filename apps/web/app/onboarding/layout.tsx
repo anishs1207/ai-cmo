@@ -3,6 +3,6 @@ import { getBusiness } from "../../lib/db";
 
 export default async function OnboardingLayout({ children }: { children: React.ReactNode }) {
   const business = await getBusiness();
-  if (business) redirect("/");
+  if (business) redirect("/dashboard");
   return children;
 }
