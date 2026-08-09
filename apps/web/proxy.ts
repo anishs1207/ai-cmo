@@ -17,6 +17,9 @@ export default function proxy(request: NextRequest) {
 }
 
 export const config = {
+  // Do NOT match /api/* — Neon Auth middleware reads the body on authenticated
+  // POSTs (session cache only applies to GET), which breaks fetch() to route
+  // handlers with "Failed to fetch". API routes auth via requireUser()/getBusiness().
   matcher: [
     "/",
     "/dashboard",
@@ -26,6 +29,5 @@ export const config = {
     "/kb",
     "/kb/:path*",
     "/account/:path*",
-    "/api/:path*",
   ],
 };
