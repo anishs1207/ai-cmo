@@ -21,6 +21,33 @@ model Business {
   campaigns   Campaign[]
   links       TrackedLink[]
   insights    Insight[]
+  businessModel String      @default(ECOMMERCE)
+  memberships  WorkspaceMembership[]
+  auditEvents  AuditEvent[]
+}
+
+model WorkspaceMembership {
+  id String @id @default(cuid())
+  businessId String
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  userId String
+  name String
+  role String
+  createdAt DateTime @default(now())
+  @@unique([businessId, userId])
+  @@index([userId])
+}
+
+model AuditEvent {
+  id String @id @default(cuid())
+  businessId String
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  actorId String
+  actorName String
+  action String
+  details Json
+  createdAt DateTime @default(now())
+  @@index([businessId, createdAt])
 }
 
 model Connection {
