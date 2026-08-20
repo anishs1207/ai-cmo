@@ -21,7 +21,7 @@ model Business {
   campaigns   Campaign[]
   links       TrackedLink[]
   insights    Insight[]
-  businessModel String      @default(ECOMMERCE)
+  businessModel String      @default("ECOMMERCE")
   memberships  WorkspaceMembership[]
   auditEvents  AuditEvent[]
 }

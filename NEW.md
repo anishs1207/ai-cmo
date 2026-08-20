@@ -5,3 +5,7 @@ for ads:
 - organic content generator: to generate viral posts to bring traffic to yoyut site
 
 create a linkedin, reddit, x post generator
+
+
+see reddit for leads
+and distributon (dif reasons)

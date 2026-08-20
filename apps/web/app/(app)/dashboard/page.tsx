@@ -6,6 +6,7 @@ import { refreshRedditViews } from "../../../lib/views";
 import { AreaChart } from "../../../components/AreaChart";
 import { PlatformBadge } from "../../../components/icons";
 import { StatusChip } from "../../../components/StatusChip";
+import { DashboardClientView } from "../../../components/mcp/DashboardClientView";
 
 export const dynamic = "force-dynamic";
 
@@ -89,18 +90,8 @@ export default async function Dashboard() {
     { label: "Campaigns", value: campaigns.length, sub: `${campaigns.filter((c) => c.status === "live").length} live` },
   ];
 
-  return (
+  const organicContent = (
     <>
-      <div className="page-head rise">
-        <div>
-          <h1 className="display">Welcome, {business.name}</h1>
-          <p>How your organic posts are performing on Reddit — views when Reddit exposes them.</p>
-        </div>
-        <Link href="/campaigns/new" className="btn btn-primary">
-          New campaign
-        </Link>
-      </div>
-
       <div className="grid-4" style={{ marginBottom: 14 }}>
         {stats.map((s) => (
           <div key={s.label} className="card card-pad rise">
@@ -223,5 +214,12 @@ export default async function Dashboard() {
         )}
       </div>
     </>
+  );
+
+  return (
+    <DashboardClientView
+      businessName={business.name}
+      organicContent={organicContent}
+    />
   );
 }

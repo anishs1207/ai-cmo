@@ -1,0 +1,58 @@
+[
+  {
+    "id": "ugc-vid-tsopcs1",
+    "filename": "relatable-customer-testimonial-for-organic-matcha-1787210527227.mp4",
+    "localPath": "C:\\Users\\Anish\\Documents\\building\\35-bart-labs\\public\\storage\\ugc-videos\\relatable-customer-testimonial-for-organic-matcha-1787210527227.mp4",
+    "publicUrl": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+    "title": "Relatable customer testimonial for organic matcha ",
+    "prompt": "Relatable customer testimonial for organic matcha tea",
+    "style": "customer_testimonial",
+    "aspectRatio": "9:16",
+    "durationSeconds": 15,
+    "sizeBytes": 10189245,
+    "createdAt": "2026-08-20T07:22:07.998Z",
+    "thumbnailUrl": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=600&auto=format&fit=crop&q=80"
+  },
+  {
+    "id": "ugc-vid-arikkm9",
+    "filename": "relatable-customer-testimonial-for-organic-matcha-1787210070235.mp4",
+    "localPath": "C:\\Users\\Anish\\Documents\\building\\35-bart-labs\\public\\storage\\ugc-videos\\relatable-customer-testimonial-for-organic-matcha-1787210070235.mp4",
+    "publicUrl": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+    "title": "Relatable customer testimonial for organic matcha ",
+    "prompt": "Relatable customer testimonial for organic matcha tea",
+    "style": "customer_testimonial",
+    "aspectRatio": "9:16",
+    "durationSeconds": 15,
+    "sizeBytes": 8134491,
+    "createdAt": "2026-08-20T07:14:30.797Z",
+    "thumbnailUrl": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=600&auto=format&fit=crop&q=80"
+  },
+  {
+    "id": "ugc-vid-001",
+    "filename": "matcha-powder-ugc-testimonial.mp4",
+    "localPath": "C:\\Users\\Anish\\Documents\\building\\35-bart-labs\\public\\storage\\ugc-videos\\matcha-powder-ugc-testimonial.mp4",
+    "publicUrl": "/storage/ugc-videos/matcha-powder-ugc-testimonial.mp4",
+    "title": "Ceremonial Matcha - Customer Morning Routine",
+    "prompt": "Relatable 20-something creator preparing ceremonial grade matcha in sunny modern kitchen, authentic selfie angle, speaking enthusiastically to camera about sustained energy with no jitters",
+    "style": "customer_testimonial",
+    "aspectRatio": "9:16",
+    "durationSeconds": 15,
+    "sizeBytes": 8420000,
+    "createdAt": "2026-08-20T03:14:30.234Z",
+    "thumbnailUrl": "https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=600&auto=format&fit=crop&q=80"
+  },
+  {
+    "id": "ugc-vid-002",
+    "filename": "ergonomic-chair-pain-point.mp4",
+    "localPath": "C:\\Users\\Anish\\Documents\\building\\35-bart-labs\\public\\storage\\ugc-videos\\ergonomic-chair-pain-point.mp4",
+    "publicUrl": "/storage/ugc-videos/ergonomic-chair-pain-point.mp4",
+    "title": "Ergonomic Desk Chair - Back Pain Hook & Fix",
+    "prompt": "Desk worker groaning from lower back pain at standard office chair, transitioning seamlessly to unpacking ergonomic lumbar support chair, smiling with instant relief posture",
+    "style": "pain_point_solution",
+    "aspectRatio": "9:16",
+    "durationSeconds": 18,
+    "sizeBytes": 11200000,
+    "createdAt": "2026-08-19T07:14:30.234Z",
+    "thumbnailUrl": "https://images.unsplash.com/photo-1580481077197-9895c023d8c1?w=600&auto=format&fit=crop&q=80"
+  }
+]
